@@ -1,21 +1,20 @@
 package com.credits.wallet.desktop.struct;
 
 /**
- * Created by goncharov-eg on 30.01.2018.
+ * Created by Rustem Saidaliyev on 25.06.2018.
  */
 public class TransactionTabRow {
-    private String id;
+    private String innerId;
     private String target;
     private String currency;
     private String amount;
-    private String hash;
 
-    public String getId() {
-        return id;
+    public String getInnerId() {
+        return innerId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setInnerId(String innerId) {
+        this.innerId = innerId;
     }
 
     public String getTarget() {
@@ -40,13 +39,5 @@ public class TransactionTabRow {
 
     public void setAmount(String amount) {
         this.amount = amount;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
     }
 }

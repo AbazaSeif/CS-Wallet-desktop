@@ -5,7 +5,10 @@ import com.credits.common.utils.Converter;
 import com.credits.common.utils.TcpClient;
 import com.credits.crypto.Blake2S;
 import com.credits.crypto.Ed25519;
+import com.credits.crypto.Md5;
 import com.credits.leveldb.client.data.TransactionFlowData;
+import com.credits.leveldb.client.exception.CreditsNodeException;
+import com.credits.leveldb.client.exception.LevelDbClientException;
 import com.credits.wallet.desktop.AppState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,72 +22,29 @@ public class ApiUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiUtils.class);
 
-    public static void callTransactionFlowWithFee(
-            String hash,
-            String innerId,
-            String source,
-            String target,
-            BigDecimal amount,
-            String currency,
-            String hashFee,
-            String innerIdFee,
-            String sourceFee,
-            String targetFee,
-            BigDecimal amountFee,
-            String currencyFee
-    )
-        throws Exception {
+    public static void callTransactionFlow(String innerId, String source, String target, BigDecimal amount,
+        BigDecimal balance, String currency) throws LevelDbClientException, CreditsNodeException {
 
         // Формировование параметров основной транзакции
         String signature =
-            Ed25519.generateSignOfTransaction(hash, innerId, source, target, amount, currency, AppState.privateKey);
+            Ed25519.generateSignOfTransaction(innerId, source, target, amount, balance, currency, AppState.privateKey);
 
-        TransactionFlowData transactionFlowData = new TransactionFlowData(
-                hash,
-                innerId,
-                source,
-                target,
-                amount,
-                currency,
-                signature
-        );
+        TransactionFlowData transactionFlowData =
+            new TransactionFlowData(innerId, source, target, amount, balance, currency, signature);
 
-        // Формировование параметров транзакции для списания комиссии
-        String signatureFee =
-                Ed25519.generateSignOfTransaction(hashFee, innerIdFee, sourceFee, targetFee, amountFee, currencyFee, AppState.privateKey);
-
-        TransactionFlowData transactionFlowDataFee = new TransactionFlowData(
-                hashFee,
-                innerIdFee,
-                sourceFee,
-                targetFee,
-                amountFee,
-                currencyFee,
-                signatureFee
-        );
-
-        AppState.apiClient.transactionFlowWithFee(
+        AppState.apiClient.transactionFlow(
                 transactionFlowData,
-                transactionFlowDataFee,
-                true
+                false
         );
     }
 
-    /**
-     * Выполнение системной транзакции
-     *
-     * @param target
-     * @throws Exception
-     */
-    public static void execSystemTransaction(String target) throws Exception {
-
-        TcpClient.sendRequest(AppState.csSenderBotHost, AppState.csSenderBotPort, target);
-    }
-
-
-    public static String generateTransactionHash() throws CreditsException {
+    public static String generateTransactionInnerId() throws CreditsException {
         byte[] hashBytes = Blake2S.generateHash(4); // 4 байта
         return Converter.bytesToHex(hashBytes);
     }
 
+    public static String generateSmartContractHashState(byte[] byteCode) throws CreditsException {
+        byte[] hashBytes = Md5.encrypt(byteCode);
+        return Converter.bytesToHex(hashBytes);
+    }
 }
