@@ -10,7 +10,7 @@ public class NumberUtils {
 
     public static void correctNum(String c, TextField tf) {
         String s = tf.getText();
-        // I. remove non-digits character
+        //remove non-digits character
         if (!digits.contains(c) && !c.equals(AppState.decimalSeparator)) {
             int ind = s.indexOf(c);
             s = s.substring(0, ind) + s.substring(ind + 1);
@@ -18,14 +18,14 @@ public class NumberUtils {
             tf.positionCaret(s.length());
         }
 
-        // II. Add 0 if first char is separator
+        //Add 0 if first char is separator
         if (s.length() > 0 && s.substring(0, 1).equals(AppState.decimalSeparator)) {
             s = "0" + s;
             tf.setText(s);
             tf.positionCaret(s.length());
         }
 
-        // III. remove second or more separator and limit length
+        //remove second or more separator and limit length
         int ind1 = s.indexOf(AppState.decimalSeparator);
         if (ind1 >= 0) {
             int ind2 = s.indexOf(AppState.decimalSeparator, ind1 + 1);

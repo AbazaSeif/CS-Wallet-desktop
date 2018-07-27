@@ -11,9 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-/**
- * Created by goncharov-eg on 19.01.2018.
- */
 public class AppState {
     public static final String NODE_ERROR="A problem connecting to the Node";
 
@@ -31,7 +28,7 @@ public class AppState {
     public static BigDecimal transactionFeePercent = BigDecimal.ZERO;
     public static String toAddress;
     public static String coin;
-    public static String innerId;
+    public static long innerId;
 
     public static TransactionTabRow selectedTransactionRow;
 

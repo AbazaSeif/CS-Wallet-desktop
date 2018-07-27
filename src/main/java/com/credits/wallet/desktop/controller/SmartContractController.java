@@ -1,17 +1,19 @@
 package com.credits.wallet.desktop.controller;
 
 import com.credits.common.exception.CreditsException;
+import com.credits.common.utils.sourcecode.SourceCodeUtils;
 import com.credits.leveldb.client.ApiClient;
 import com.credits.leveldb.client.data.ApiResponseData;
 import com.credits.leveldb.client.data.SmartContractData;
 import com.credits.leveldb.client.exception.CreditsNodeException;
 import com.credits.leveldb.client.exception.LevelDbClientException;
+import com.credits.thrift.generated.Variant;
 import com.credits.wallet.desktop.App;
 import com.credits.wallet.desktop.AppState;
 import com.credits.wallet.desktop.exception.WalletDesktopException;
 import com.credits.wallet.desktop.utils.ApiUtils;
 import com.credits.wallet.desktop.utils.FormUtils;
-import com.credits.wallet.desktop.utils.SourceCodeUtils;
+import com.credits.wallet.desktop.utils.SmartContractUtils;
 import com.credits.wallet.desktop.utils.Utils;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -31,9 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 30.01.2018.
- */
 public class SmartContractController extends Controller implements Initializable {
 
     private static Logger LOGGER = LoggerFactory.getLogger(SmartContractController.class);
@@ -126,7 +125,7 @@ public class SmartContractController extends Controller implements Initializable
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        this.codeArea = SourceCodeUtils.initCodeArea(this.pCodePanel);
+        this.codeArea = SmartContractUtils.initCodeArea(this.pCodePanel);
         TreeItem<Label> rootItem = new TreeItem<>(new Label("Smart contracts"));
 
         try {
@@ -208,7 +207,15 @@ public class SmartContractController extends Controller implements Initializable
                 }
             });
 
-            String transactionInnerId = ApiUtils.generateTransactionInnerId();
+            // 2DO Select param type
+            List<Variant> varParams = new ArrayList<>();
+            for (String p : params) {
+                Variant var = new Variant();
+                var.setV_string(p);
+                varParams.add(var);
+            }
+
+            long transactionInnerId = ApiUtils.generateTransactionInnerId();
             SmartContractData smartContractData = this.currentSmartContract;
             smartContractData.setMethod(method);
             smartContractData.setParams(params);
@@ -220,7 +227,34 @@ public class SmartContractController extends Controller implements Initializable
                     smartContractData
             );
             if (apiResponseData.getCode() == ApiClient.API_RESPONSE_SUCCESS_CODE) {
-                Utils.showInfo("Smart-contract executed successfully");
+                if (apiResponseData.getScExecRetVal()!=null) {
+                    StringBuilder retVal=new StringBuilder();
+                    retVal.append("v_bool=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_bool());
+                    retVal.append("\n");
+                    retVal.append("v_i8=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_i8());
+                    retVal.append("\n");
+                    retVal.append("v_i16=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_i16());
+                    retVal.append("\n");
+                    retVal.append("v_i32=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_i32());
+                    retVal.append("\n");
+                    retVal.append("v_i64=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_i64());
+                    retVal.append("\n");
+                    retVal.append("v_double=");
+                    retVal.append(apiResponseData.getScExecRetVal().getV_double());
+                    retVal.append("\n");
+                    if (apiResponseData.getScExecRetVal().getV_string()!=null) {
+                        retVal.append("v_string=");
+                        retVal.append(apiResponseData.getScExecRetVal().getV_string());
+                        retVal.append("\n");
+                    }
+                    Utils.showInfo("Smart-contract executed successfully; Returned value:\n" + retVal.toString());
+                } else
+                    Utils.showInfo("Smart-contract executed successfully");
             } else {
                 Utils.showError(apiResponseData.getMessage());
             }

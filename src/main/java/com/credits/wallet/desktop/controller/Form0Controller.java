@@ -4,9 +4,6 @@ import com.credits.wallet.desktop.App;
 import com.credits.wallet.desktop.AppState;
 import javafx.fxml.FXML;
 
-/**
- * Created by goncharov-eg on 23.11.2017.
- */
 public class Form0Controller extends Controller {
     @FXML
     private void handleExistingAccount() {

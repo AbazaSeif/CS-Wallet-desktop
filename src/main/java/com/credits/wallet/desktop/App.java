@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 
-/**
- * Created by goncharov-eg on 23.11.2017.
- */
 public class App extends Application {
 
     private static Stage currentStage;

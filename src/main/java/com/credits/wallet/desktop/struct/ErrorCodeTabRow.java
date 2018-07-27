@@ -1,8 +1,5 @@
 package com.credits.wallet.desktop.struct;
 
-/**
- * Created by goncharov-eg on 02.03.2018.
- */
 public class ErrorCodeTabRow {
     private String line;
     private String text;

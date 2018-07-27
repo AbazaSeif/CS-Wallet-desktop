@@ -12,9 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by goncharov-eg on 26.01.2018.
- */
 public class Utils {
     private static final String MSG_RETRIEVE_BALANCE = "Retrieving balance...";
     private static final int FRACTION_MAX_LENGTH = 4;

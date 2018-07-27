@@ -28,9 +28,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 18.01.2018.
- */
 public class Form5Controller extends Controller implements Initializable {
     private static Logger LOGGER = LoggerFactory.getLogger(Form5Controller.class);
 
@@ -64,7 +61,7 @@ public class Form5Controller extends Controller implements Initializable {
     @FXML
     private void handleSaveKeys() throws WalletDesktopException {
         FileChooser fileChooser = new FileChooser();
-        File defaultDirectory = new File(System.getProperty("user.dir"));
+        File defaultDirectory = new File(System.getProperty("user.home")+"/Downloads/");
         fileChooser.setInitialDirectory(defaultDirectory);
         File file = fileChooser.showSaveDialog(null);
 
@@ -122,13 +119,13 @@ public class Form5Controller extends Controller implements Initializable {
         if (AppState.newAccount) {
             txKey.setText(Converter.encodeToBASE58(Ed25519.privateKeyToBytes(AppState.privateKey)));
             txPublic.setText(Converter.encodeToBASE58(Ed25519.publicKeyToBytes(AppState.publicKey)));
+            try {
+                handleSaveKeys();
+            } catch (WalletDesktopException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
         }
 
-        try {
-            handleSaveKeys();
-        } catch (WalletDesktopException e) {
-            LOGGER.error(e.getMessage(), e);
-        }
     }
 
     private void open(String pubKey, String privKey) {
@@ -136,14 +133,6 @@ public class Form5Controller extends Controller implements Initializable {
 
         AppState.account = pubKey;
         if (AppState.newAccount) {
-            //TODO: if there is no need to make a system transaction separately we should remove this code and refactor the method
-            //            try {
-            //                ApiUtils.execSystemTransaction(pubKey);
-            //            } catch (Exception e) {
-            //                LOGGER.error(e.getMessage(), e);
-            //                FormUtils.showError("Error creating transaction " + e.toString());
-            //                //return;
-            //            }
         } else {
             try {
                 byte[] publicKeyByteArr = Converter.decodeFromBASE58(pubKey);
@@ -157,7 +146,6 @@ public class Form5Controller extends Controller implements Initializable {
                     txPublic.setStyle(txPublic.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
                 }
                 LOGGER.error(e.getMessage(), e);
-                //return;
             }
         }
 

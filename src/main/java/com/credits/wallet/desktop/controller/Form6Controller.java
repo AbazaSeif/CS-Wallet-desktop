@@ -26,9 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 18.01.2018.
- */
 public class Form6Controller extends Controller implements Initializable {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Form6Controller.class);
@@ -94,13 +91,7 @@ public class Form6Controller extends Controller implements Initializable {
             numAmount.setStyle(numAmount.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
             isValidationSuccessful = false;
         }
-        /*
-        if (AppState.transactionFeeValue.compareTo(BigDecimal.ZERO) <= 0) {
-            labErrorFee.setText(ERR_FEE);
-            numFee.setStyle(numFee.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
-            isValidationSuccessful = false;
-        }
-        */
+
         try {
             Validator.validateToAddress(AppState.toAddress);
         } catch (LevelDbClientException e) {
@@ -130,12 +121,18 @@ public class Form6Controller extends Controller implements Initializable {
         try {
             Files.readAllLines(Paths.get("coins.csv"))
                 .forEach(line -> {
-                    String[] s = line.split(";");
-                    cbCoin.getItems().add(s[0] + " (" + s[1] + ")");
-                    AppState.coins.add(s[1]);
+                    if (line!=null && !line.trim().isEmpty()) {
+                        String[] s = line.split(";");
+                        if (s.length >= 2) {
+                            cbCoin.getItems().add(s[0] + " (" + s[1] + ")");
+                            AppState.coins.add(s[0]);
+                        } else if (s.length == 1) {
+                            cbCoin.getItems().add(s[0]);
+                            AppState.coins.add(s[0]);
+                        }
+                    }
                 });
         } catch (IOException e) {
-            //TODO: Handle this somehow
         }
 
         cbCoin.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {

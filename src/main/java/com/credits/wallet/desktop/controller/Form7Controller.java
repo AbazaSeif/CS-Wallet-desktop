@@ -17,9 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * Created by Rustem.Saidaliyev on 26.01.2018.
- */
 public class Form7Controller extends Controller implements Initializable {
     private final static Logger LOGGER = LoggerFactory.getLogger(Form7Controller.class);
 
@@ -42,7 +39,7 @@ public class Form7Controller extends Controller implements Initializable {
     private void handleGenerate() {
         try {
             ApiUtils.callTransactionFlow(AppState.innerId, AppState.account, AppState.toAddress, AppState.amount,
-                AppState.balance, AppState.coin);
+                AppState.balance, (byte)1, AppState.transactionFeeValue);
         } catch (LevelDbClientException e) {
             LOGGER.error(AppState.NODE_ERROR + ": " + e.getMessage(), e);
             FormUtils.showError(AppState.NODE_ERROR);

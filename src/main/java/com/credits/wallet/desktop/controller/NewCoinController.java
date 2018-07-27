@@ -24,9 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 07.02.2018.
- */
 public class NewCoinController extends Controller implements Initializable {
     private final static Logger LOGGER = LoggerFactory.getLogger(NewCoinController.class);
 
@@ -85,7 +82,7 @@ public class NewCoinController extends Controller implements Initializable {
         // Save to csv
         try {
             Path coinsPath = Paths.get("coins.csv");
-            List<String> strings = Collections.singletonList(strToWrite + "\n");
+            List<String> strings = Collections.singletonList(strToWrite);
             Files.write(coinsPath, strings, StandardCharsets.UTF_8, StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE);
         } catch (IOException e) {
