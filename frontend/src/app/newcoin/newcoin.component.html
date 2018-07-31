@@ -1,0 +1,27 @@
+<section class="section2">
+  <div class="leftPart">
+    <!--FAQ-->
+    <app-faq></app-faq>
+  </div>
+
+  <div class="rightPart">
+    <forma id="FormaPassword">
+      <h1>New Coin</h1>
+      <p class="mb_60">On this page you can add new coin for smart contract</p>
+
+      <p>Put SmartContract token</p>
+      <input class="main-input mb_10" data-val="true" required="required" type="text" [(ngModel)]="smartContractToken">
+      <p class="mb_50 textColorRed" *ngIf="smartContractToken.length == 0">Please input smartContractToken</p>
+      <p class="mb_50 textColorRed" *ngIf="hidden == true">The token already exists</p>
+
+      <p>Put coin mnemonic</p>
+      <input class="main-input mb_10" data-val="true" required="required" type="text" [(ngModel)] = "coin">
+      <p class="mb_50 textColorRed" *ngIf="coin.length == 0">Please input coin</p>
+
+      <div style="display: flex; flex-direction: row; justify-content: space-around">
+        <p class="fontBold"><a class="bold-link bttn" (click)="goToPrevStep()">Back</a></p>
+        <p class="fontBold"><a class="bold-link bttn" (click)="saveCoin()">Save</a></p>
+      </div>
+    </forma>
+  </div>
+</section>

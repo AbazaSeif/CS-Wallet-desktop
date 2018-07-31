@@ -1,0 +1,27 @@
+<section class="section2">
+  <div class="leftPart">
+    <!--FAQ-->
+    <app-faq></app-faq>
+  </div>
+
+  <div class="rightPart">
+    <forma id="FormaPassword">
+      <h1>Unlock your wallet</h1>
+      <p class="wallet__p mb-60">On this page you can open the wallet and make payments in the Credits platform</p>
+
+      <h1>Enter your Private Key</h1>
+      <p class="wallet__p mb-60">Use your Private Key to access your Account.</p>
+
+      <p class="wallet__p">Put public key</p>
+      <input class="main-input mb-10" data-val="true" placeholder="Put public key here" required="required" type="text" [(ngModel)]="addressKey" [formControl]="keyControl">
+      <p class="wallet__p mb-50 textColorRed" *ngIf="addressKey.length != 43 && addressKey.length != 44">*The public key length must be 44 Base58 characters.</p>
+
+      <p class="wallet__p">Put below saved private key in previous step</p>
+      <input class="main-input mb-10" data-val="true" placeholder="Put private key here" required="required" type="text" [(ngModel)]="privateKey" [formControl]="privateControl">
+      <p class="wallet__p textColorRed" *ngIf="privateKey.length != 87 && privateKey.length != 88">The private key length must be 88 Base58 characters.</p>
+      <p class="fontBold"><a class="bold-link bttn" (click) = goToStep(6)>Open your wallet</a></p>
+    </forma>
+
+
+  </div>
+</section>

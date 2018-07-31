@@ -1,0 +1,26 @@
+<section class="section2">
+  <div class="leftPart">
+    <!--FAQ-->
+    <app-faq></app-faq>
+  </div>
+
+  <div class="rightPart">
+    <forma id="FormaPassword">
+      <h1>Enter your CREDITS Account</h1>
+      <p class="wallet__p mb-60">Select the Authentication Method for your Account.</p>
+
+      <h1>How would you like to access your Wallet?</h1>
+
+      <p class="wallet__p">Select one of the following:</p>
+      <p class="wallet__p fontBold"><a class="bold-link bttn bttnfix margin_top_20" (click)=goToStep(5)>Private key</a></p>
+
+      <p></p>
+      <div class="file-wrapper">
+      <p class="fontBold">
+        <a class="bold-link bttn bttnfix">Upload a file</a>
+        <input type="file"  (change)="onChange($event)" #input accept="text/plain"/>
+      </p>
+      </div>
+    </forma>
+  </div>
+</section>

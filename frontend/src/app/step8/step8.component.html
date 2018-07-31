@@ -1,0 +1,46 @@
+<div class="content padding_top_50">
+  <div class="row main-text">
+    <div class="left-bar">
+      <app-account></app-account>
+      <!--FAQ-->
+      <app-faq></app-faq>
+    </div>
+    <div class="w-100 mx_680">
+      <h2 class="title">Your payment was completed successfully</h2>
+      <div class=" mb-50">
+        Below you can see payment details and view transaction on the CREDITS Monitor
+      </div>
+      <div class=" mb-20">
+        <span>To Address (Recipient)</span>
+      </div>
+      <div class=" mb-20">
+        <span class="fontBold line_left">{{toAddress}}</span>
+      </div>
+      <div class=" mb-20">
+        <span>Transaction Amount</span>
+      </div>
+      <div class=" mb-20">
+        <span class="fontBold line_left">{{dataService.amountInCs}}</span>
+      </div>
+      <div class=" mb-20">
+        <span>Trancaction Fee</span>
+      </div>
+      <div class=" mb-20">
+        <span class="fontBold line_left">{{dataService.transactionFee}}  CS</span>
+      </div>
+      <div class=" mb-20">
+        <span>Offered maximum fee</span>
+      </div>
+      <div class=" mb-20">
+        <span class="fontBold line_left">{{dataService.offeredMaxFee}}</span>
+      </div>
+      <div class=" mb-20">
+        <a class="link fontBold" (click)="dataService.goToMonitor()">View transaction on the CREDITS Monitor</a>
+      </div>
+      <div class="row mb-50">
+        <a class="bold-link bttn" (click)="goToStep(6)">OK</a>
+      </div>
+    </div>
+  </div>
+</div>
+

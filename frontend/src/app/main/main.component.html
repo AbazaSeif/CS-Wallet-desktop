@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WALLET1</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800,900&amp;subset=cyrillic" rel="stylesheet">
+
+  <!--WALLET 14 ADD Yandex  metric -->
+
+  <!-- Yandex.Metrika counter -->
+  <script type="text/javascript" >
+    (function (d, w, c) {
+      (w[c] = w[c] || []).push(function() {
+        try {
+          w.yaCounter44398234 = new Ya.Metrika2(
+            { id:44398234, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true }
+
+          );
+        } catch(e) { }
+      });
+
+      var n = d.getElementsByTagName("script")[0],
+        s = d.createElement("script"),
+        f = function ()
+        { n.parentNode.insertBefore(s, n); }
+
+      ;
+      s.type = "text/javascript";
+      s.async = true;
+      s.src = "https://mc.yandex.ru/metrika/tag.js";
+
+      if (w.opera == "[object Opera]")
+      { d.addEventListener("DOMContentLoaded", f, false); }
+
+      else
+      { f(); }
+
+    })(document, window, "yandex_metrika_callbacks2");
+  </script>
+  <noscript><div><img src="https://mc.yandex.ru/watch/44398234" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+  <!-- /Yandex.Metrika counter -->
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push(
+
+    {'gtm.start': new Date().getTime(),event:'gtm.js'}
+  );var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-KJBMG2W');</script>
+  <!-- End Google Tag Manager -->
+</head>
+
+<body>
+
+  <noscript>
+    <p>Please enable Javascript</p>
+  </noscript>
+
+  <div class="wrap fix" [ngClass]="{'no-padding': step==0}  ">
+    <app-header (changeStepEvent)="receiveStep($event)"></app-header>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KJBMG2W"
+                      height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <div *ngIf="!dataService.isWalletOpened">
+
+      <app-step0 [hidden]="step!=0" (changeStepEvent)="receiveStep($event)"></app-step0>
+      <app-step1 [hidden]="step!=1" (changeStepEvent)="receiveStep($event)"></app-step1>
+      <app-step4 [hidden]="step!=4"  (changeStepEvent)="receiveStep($event)"></app-step4>
+      <app-step45 [hidden]="step!=45" (changeStepEvent)="receiveStep($event)"></app-step45>
+      <app-step5 [hidden]="step!=5" (changeStepEvent)="receiveStep($event)"></app-step5>
+    </div>
+    <div *ngIf="dataService.isWalletOpened">
+      <app-step6 *ngIf="step==6" (changeStepEvent)="receiveStep($event)"></app-step6>
+      <newcoin *ngIf="step==61" (changeStepEvent)="receiveStep($event)"></newcoin>
+      <app-smart *ngIf="step==65" (changeStepEvent)="receiveStep($event)"></app-smart>
+      <app-step7 *ngIf="step==7" (changeStepEvent)="receiveStep($event)"></app-step7>
+      <app-step8 *ngIf="step==8" (changeStepEvent)="receiveStep($event)"></app-step8>
+    </div>
+  </div>
+  <app-footer (changeStepEvent)="receiveStep($event)"></app-footer>
+</body>
+</html>

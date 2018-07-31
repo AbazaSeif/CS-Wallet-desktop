@@ -1,0 +1,50 @@
+<section class="section1">
+  <h1 class="title 50">Smart contracts</h1>
+  <a class="link mb-10" (click)="goToPrevStep()">Back</a>
+  <form>
+    <div class="flexColMax320">
+      <div class="lblock">
+        <input class="main-input mb-10" data-val="true" id="SearchContact-field" name="SearchContact"
+               placeholder="Search contact" required="required" type="text" [(ngModel)]="smartContractAddress">
+        <p class="smart__p no-margin">
+          <a class="bold-link bttn lupop" (click)="searchSmartContract()"></a>
+        </p>
+      </div>
+      <p class="smart__p fontBold font_l_h_2 mb-10">Contract List:</p>
+      <div class="contract-list">
+        <ul>
+          <li *ngFor="let smartContract of dataService.smartContractList">
+            <a (click)="refreshSmartContract(smartContract.address)" href="#">{{smartContract.hashState}}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+
+    <div class="flexColMax320" *ngIf="currentSmartContract">
+      <p class="smart__p fontBold">Contract address:</p>
+      <p class="smart__p padding_top_13">{{currentSmartContract.address}}</p>
+
+      <p class="smart__p fontBold">Choose method:</p>
+      <select class="select" #select (ngModelChange)="onMethodChange($event)" [(ngModel)]="optionSelected" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let method of currentSmartContract.sourceCode.methods" [ngValue]="method">{{method.name}}</option>
+      </select>
+
+      <div *ngIf="currentMethod">
+        <div class="wrap_fields" *ngIf="currentMethod.params.length>0">
+          <div *ngFor="let param of currentMethod.params; let i = index;">
+            <p>{{param.type}}</p>
+            <input class="main-input" data-val="true" type="text" [(ngModel)]="currentMethod.params[i].value" [ngModelOptions]="{standalone: true}"/>
+          </div>
+        </div>
+        <p class="fontBold text-center" style="padding-top: 20px;"><a class="bold-link bttn" (click)="onExecute()">Execute</a></p>
+      </div>
+    </div>
+    <div class="flexColMax320" *ngIf="currentSmartContract">
+      <p class="fontBold">Contract code:</p>
+      <div class="wrap_code">
+        <pre>{{currentSmartContract.sourceCode.sourceCodeBody}}</pre>
+      </div>
+    </div>
+  </form>
+</section>

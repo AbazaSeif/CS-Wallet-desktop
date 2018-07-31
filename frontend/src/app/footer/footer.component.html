@@ -1,0 +1,21 @@
+<footer class="fix">
+  <div class="wrap_foot">
+    <div class="footer_items">
+      <div class="row footermenu">
+        <div class="menu_col_foot">
+          <div *ngIf="dataService.isWalletOpened">
+            <div class="footer_menu_item" (click)="dataService.logout()">Logout</div>
+            <div class="footer_menu_item" (click)="dataService.goToMonitor()">Monitor</div>
+            <div class="footer_menu_item" (click)="goToStep(65)">Smart contract</div>
+          </div>
+          <div class="footer_menu_item">About Credits</div>
+        </div>
+      </div>
+    </div>
+    <div class="row copy">
+      <div class="copyright">
+        <p>Supported by CREDITS.COM PTE.LTD Singapore</p>
+      </div>
+    </div>
+  </div>
+</footer>
