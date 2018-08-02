@@ -1,0 +1,52 @@
+@font-face {
+    font-family: 'Montserrat SemiBold';
+    src: url('fonts/Montserrat-SemiBold.otf');
+}
+
+.keyword {
+    -fx-fill: purple;
+    -fx-font-weight: bold;
+}
+.semicolon {
+    -fx-font-weight: bold;
+}
+.paren {
+    -fx-fill: firebrick;
+    -fx-font-weight: bold;
+}
+.bracket {
+    -fx-fill: darkgreen;
+    -fx-font-weight: bold;
+}
+.brace {
+    -fx-fill: teal;
+    -fx-font-weight: bold;
+}
+.string {
+    -fx-fill: blue;
+}
+
+.comment {
+	-fx-fill: cadetblue;
+}
+
+.paragraph-box:has-caret {
+    -fx-background-color: #f2f9fc;
+}
+
+#refresh-balance-button {
+    -fx-min-height: 16px;
+    -fx-min-width: 16px;
+    -fx-background-image: url("img/refresh.jpg");
+    -fx-background-size: 14px;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-background-color: #fff;
+    -fx-border-width: 0;
+    -fx-border-color: #000
+}
+
+/** Size the combo-box drop down list. */
+.combo-box-popup > .list-view {
+    -fx-pref-width: 1000;
+}
