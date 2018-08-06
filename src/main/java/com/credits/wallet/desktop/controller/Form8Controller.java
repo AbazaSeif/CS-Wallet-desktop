@@ -18,9 +18,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * Created by Rustem.Saidaliyev on 26.01.2018.
- */
 public class Form8Controller extends Controller implements Initializable {
     private final static Logger LOGGER = LoggerFactory.getLogger(Form8Controller.class);
 
@@ -63,7 +60,6 @@ public class Form8Controller extends Controller implements Initializable {
         TransactionTabRow transactionTabRow = new TransactionTabRow();
 
         transactionTabRow.setTarget(AppState.toAddress);
-        //transactionTabRow.setCurrency(AppState.coin);
         transactionTabRow.setCurrency((byte)1);
         transactionTabRow.setAmount(Converter.toString(AppState.amount));
         transactionTabRow.setInnerId(AppState.innerId);

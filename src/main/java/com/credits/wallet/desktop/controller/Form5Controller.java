@@ -28,9 +28,6 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 18.01.2018.
- */
 public class Form5Controller extends Controller implements Initializable {
     private static Logger LOGGER = LoggerFactory.getLogger(Form5Controller.class);
 

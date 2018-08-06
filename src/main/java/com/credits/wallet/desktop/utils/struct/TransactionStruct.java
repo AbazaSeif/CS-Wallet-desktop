@@ -13,9 +13,6 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-/**
- * Created by goncharov-eg on 20.07.2018.
- */
 public class TransactionStruct implements Serializable {
     private long innerId;
     private byte[] source;

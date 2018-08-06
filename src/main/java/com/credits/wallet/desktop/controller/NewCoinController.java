@@ -24,9 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 07.02.2018.
- */
 public class NewCoinController extends Controller implements Initializable {
     private final static Logger LOGGER = LoggerFactory.getLogger(NewCoinController.class);
 

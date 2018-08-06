@@ -4,9 +4,6 @@ import com.credits.wallet.desktop.utils.EclipseJdt;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.junit.Test;
 
-/**
- * Created by Rustem Saidaliyev on 27-Mar-18.
- */
 public class EclipseJdtTest {
 
     @Test

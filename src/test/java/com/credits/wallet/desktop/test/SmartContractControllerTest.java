@@ -16,8 +16,6 @@ public class SmartContractControllerTest {
             "\tpublic void initialize() { } \n" +
             "\tpublic void balanceGet() throws Exception { \n" +
             "\t\tSystem.out.println(\"getBalance()\"); \n" +
-            //"\t\tjava.math.BigDecimal balance = getBalance(\"1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2\", \"CS\"); \n" +
-            //"\t\tSystem.out.println(\"getBalance = \" + balance); \n" +
             "\t} \n" +
             "\tpublic void sendZeroCS() throws Exception {\n" +
             "\t\tSystem.out.println(\"try to send 0 credits...\"); sendTransaction(\"1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2\", \"1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2\", 0, \"CS\"); System.out.println(\"success\"); \n" +

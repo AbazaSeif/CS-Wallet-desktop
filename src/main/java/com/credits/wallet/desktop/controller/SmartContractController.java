@@ -33,9 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 30.01.2018.
- */
 public class SmartContractController extends Controller implements Initializable {
 
     private static Logger LOGGER = LoggerFactory.getLogger(SmartContractController.class);

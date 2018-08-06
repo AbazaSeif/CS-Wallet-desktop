@@ -45,10 +45,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 
-/**
- * Created by goncharov-eg on 30.01.2018.
- */
-//TODO: This class is a GODZILLA please refactor it ASAP!
 public class SmartContractDeployController extends Controller implements Initializable {
 
     private static Logger LOGGER = LoggerFactory.getLogger(SmartContractDeployController.class);

@@ -11,9 +11,6 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 18.01.2018.
- */
 public class Form4Controller extends Controller implements Initializable {
     @FXML
     private TextField txKey;

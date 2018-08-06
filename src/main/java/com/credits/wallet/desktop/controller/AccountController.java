@@ -16,9 +16,6 @@ import java.awt.datatransfer.StringSelection;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * Created by Rustem.Saidaliyev on 26.11.2017.
- */
 public class AccountController extends Controller implements Initializable {
     private final static Logger LOGGER = LoggerFactory.getLogger(AccountController.class);
 

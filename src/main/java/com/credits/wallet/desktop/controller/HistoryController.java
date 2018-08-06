@@ -19,9 +19,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 29.01.2018.
- */
 public class HistoryController extends Controller implements Initializable {
     private static final String ERR_GETTING_TRANSACTION_HISTORY = "Error getting transaction history";
 
@@ -124,20 +121,6 @@ public class HistoryController extends Controller implements Initializable {
 
         });
 
-        /*
-        tabTransaction.setItems(
-            FXCollections.observableList(transactionList.stream()
-                .map(transaction -> {
-                    TransactionHistoryTableRow tr = new TransactionHistoryTableRow();
-                    tr.setTarget(transaction.getTarget());
-                    tr.setCurrency(transaction.getCurrency());
-                    tr.setAmount(Converter.toString(transaction.getAmount()));
-                    tr.setId(transaction.getInnerId());
-                    return tr;
-                })
-                .collect(Collectors.toList()))
-        );
-        */
     }
 
     @FXML

@@ -20,9 +20,6 @@ import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.Date;
 
-/**
- * Created by Rustem Saidaliyev on 20-Mar-18.
- */
 public class ApiUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApiUtils.class);
@@ -30,17 +27,9 @@ public class ApiUtils {
     public static void callTransactionFlow(long innerId, String source, String target, BigDecimal amount,
         BigDecimal balance, byte currency, BigDecimal fee) throws LevelDbClientException, CreditsNodeException {
 
-        // Формировование параметров основной транзакции
+        // Formation of parameters of main transaction
         ByteBuffer signature;
         try {
-            // 4 DEBUG
-            //innerId=1532529576028l;
-            //source="AoRKdBEbozwTKt5sirqx6ERv2DPsrvTk81hyztnndgWC";
-            //target="B3EBaHgRU7sd353axMRrZfoL9aL2XjA3oXejDdPrMnHR";
-            //amount=new BigDecimal(10.0);
-            //fee=new BigDecimal(0.1);
-            //currency=1;
-            // -------
 
             TransactionStruct tStruct = new TransactionStruct(innerId, source, target, amount, fee, currency, null);
             byte[] tArr=tStruct.getBytes();
@@ -75,11 +64,6 @@ public class ApiUtils {
                 false
         );
     }
-
-    //public static String generateTransactionInnerId() throws CreditsException {
-    //    byte[] hashBytes = Blake2S.generateHash(4); // 4 байта
-    //    return Converter.bytesToHex(hashBytes);
-    //}
 
     public static long generateTransactionInnerId() {
         return new Date().getTime();

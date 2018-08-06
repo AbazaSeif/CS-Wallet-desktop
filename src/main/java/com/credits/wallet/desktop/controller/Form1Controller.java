@@ -15,9 +15,6 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.util.ResourceBundle;
 
-/**
- * Created by goncharov-eg on 18.01.2018.
- */
 public class Form1Controller extends Controller implements Initializable {
     @FXML
     Button btnShowPassword;

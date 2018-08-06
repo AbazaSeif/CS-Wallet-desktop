@@ -1,8 +1,5 @@
 package com.credits.wallet.desktop;
 
-/**
- * Created by goncharov-eg on 26.01.2018.
- */
 public enum CommonCurrency {
     CREDITS("Credits", "cs");
 
