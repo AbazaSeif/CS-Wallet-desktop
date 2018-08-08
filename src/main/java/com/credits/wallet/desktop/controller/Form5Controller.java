@@ -134,14 +134,7 @@ public class Form5Controller extends Controller implements Initializable {
 
         AppState.account = pubKey;
         if (AppState.newAccount) {
-            //TODO: if there is no need to make a system transaction separately we should remove this code and refactor the method
-            //            try {
-            //                ApiUtils.execSystemTransaction(pubKey);
-            //            } catch (Exception e) {
-            //                LOGGER.error(e.getMessage(), e);
-            //                FormUtils.showError("Error creating transaction " + e.toString());
-            //                //return;
-            //            }
+			
         } else {
             try {
                 byte[] publicKeyByteArr = Converter.decodeFromBASE58(pubKey);
@@ -155,7 +148,6 @@ public class Form5Controller extends Controller implements Initializable {
                     txPublic.setStyle(txPublic.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
                 }
                 LOGGER.error(e.getMessage(), e);
-                //return;
             }
         }
 

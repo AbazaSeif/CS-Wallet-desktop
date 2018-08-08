@@ -139,7 +139,7 @@ public class Form6Controller extends Controller implements Initializable {
                     }
                 });
         } catch (IOException e) {
-            //TODO: Handle this somehow
+
         }
 
         cbCoin.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {

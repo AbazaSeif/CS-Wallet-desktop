@@ -71,7 +71,7 @@ public class TransactionStruct implements Serializable {
                 os.write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).put(sc).array());
             }
         } catch (IOException e) {
-            // do nothing - never happen
+
         }
         return os.toByteArray();
     }
