@@ -91,13 +91,6 @@ public class Form6Controller extends Controller implements Initializable {
             numAmount.setStyle(numAmount.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
             isValidationSuccessful = false;
         }
-        /*
-        if (AppState.transactionFeeValue.compareTo(BigDecimal.ZERO) <= 0) {
-            labErrorFee.setText(ERR_FEE);
-            numFee.setStyle(numFee.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
-            isValidationSuccessful = false;
-        }
-        */
         try {
             Validator.validateToAddress(AppState.toAddress);
         } catch (LevelDbClientException e) {
@@ -139,7 +132,6 @@ public class Form6Controller extends Controller implements Initializable {
                     }
                 });
         } catch (IOException e) {
-
         }
 
         cbCoin.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
