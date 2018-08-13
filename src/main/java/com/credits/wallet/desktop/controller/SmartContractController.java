@@ -5,8 +5,10 @@ import com.credits.common.utils.sourcecode.SourceCodeUtils;
 import com.credits.leveldb.client.ApiClient;
 import com.credits.leveldb.client.data.ApiResponseData;
 import com.credits.leveldb.client.data.SmartContractData;
+import com.credits.leveldb.client.data.SmartContractInvocationData;
 import com.credits.leveldb.client.exception.CreditsNodeException;
 import com.credits.leveldb.client.exception.LevelDbClientException;
+import com.credits.leveldb.client.util.ApiClientUtils;
 import com.credits.thrift.generated.Variant;
 import com.credits.wallet.desktop.App;
 import com.credits.wallet.desktop.AppState;
@@ -15,6 +17,7 @@ import com.credits.wallet.desktop.utils.ApiUtils;
 import com.credits.wallet.desktop.utils.FormUtils;
 import com.credits.wallet.desktop.utils.SmartContractUtils;
 import com.credits.wallet.desktop.utils.Utils;
+import com.credits.wallet.desktop.utils.struct.TransactionStruct;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,7 +31,9 @@ import org.fxmisc.richtext.CodeArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -83,7 +88,7 @@ public class SmartContractController extends Controller implements Initializable
     private void handleSearch() {
         String address = txSearchAddress.getText();
         try {
-            SmartContractData smartContractData = AppState.apiClient.getSmartContract(address);
+            SmartContractData smartContractData = AppState.apiClient.getSmartContract(address.getBytes());
             this.refreshFormState(smartContractData);
         } catch (LevelDbClientException e) {
             LOGGER.error(e.getMessage(), e);
@@ -101,7 +106,7 @@ public class SmartContractController extends Controller implements Initializable
         if (
                 smartContractData == null
                 || smartContractData.getHashState().isEmpty()
-                || smartContractData.getAddress().isEmpty()
+                || smartContractData.getAddress().length==0
                 ) {
             this.pControls.setVisible(false);
             this.spCodePanel.setVisible(false);
@@ -110,7 +115,7 @@ public class SmartContractController extends Controller implements Initializable
             this.spCodePanel.setVisible(true);
             this.currentSmartContract = smartContractData;
             String sourceCode = smartContractData.getSourceCode();
-            this.lAddress.setText(smartContractData.getAddress());
+            this.lAddress.setText(new String(smartContractData.getAddress()));
             List<MethodDeclaration> methods = SourceCodeUtils.parseMethods(sourceCode);
             cbMethods.getItems().clear();
             methods.forEach(method -> {
@@ -130,7 +135,7 @@ public class SmartContractController extends Controller implements Initializable
 
         try {
             this.refreshFormState(null);
-            List<SmartContractData> smartContracts = AppState.apiClient.getSmartContracts(AppState.account);
+            List<SmartContractData> smartContracts = AppState.apiClient.getSmartContracts(AppState.account.getBytes());
             smartContracts.forEach(smartContractData -> {
 
                 Label label = new Label(smartContractData.getHashState());
@@ -217,53 +222,34 @@ public class SmartContractController extends Controller implements Initializable
 
             long transactionInnerId = ApiUtils.generateTransactionInnerId();
             SmartContractData smartContractData = this.currentSmartContract;
-            smartContractData.setMethod(method);
-            smartContractData.setParams(params);
+
+            SmartContractInvocationData smartContractInvocationData =
+                    new SmartContractInvocationData(smartContractData.getSourceCode(), smartContractData.getByteCode(),
+                            smartContractData.getHashState(), method, params, true);
+
+            byte[] scBytes = ApiClientUtils.serializeByThrift(smartContractData);
+            TransactionStruct tStruct = new TransactionStruct(transactionInnerId, AppState.account,
+                    new String(this.currentSmartContract.getAddress()),
+                    new BigDecimal(0), new BigDecimal(0), (byte)1, scBytes);
+            ByteBuffer signature=Utils.signTransactionStruct(tStruct);
 
             ApiResponseData apiResponseData = AppState.apiClient.executeSmartContract(
                     transactionInnerId,
-                    AppState.account,
+                    AppState.account.getBytes(),
                     this.currentSmartContract.getAddress(),
-                    smartContractData
+                    smartContractInvocationData,
+                    new byte[signature.remaining()]
             );
             if (apiResponseData.getCode() == ApiClient.API_RESPONSE_SUCCESS_CODE) {
-                if (apiResponseData.getScExecRetVal()!=null) {
-                    StringBuilder retVal=new StringBuilder();
-                    retVal.append("v_bool=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_bool());
-                    retVal.append("\n");
-                    retVal.append("v_i8=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_i8());
-                    retVal.append("\n");
-                    retVal.append("v_i16=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_i16());
-                    retVal.append("\n");
-                    retVal.append("v_i32=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_i32());
-                    retVal.append("\n");
-                    retVal.append("v_i64=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_i64());
-                    retVal.append("\n");
-                    retVal.append("v_double=");
-                    retVal.append(apiResponseData.getScExecRetVal().getV_double());
-                    retVal.append("\n");
-                    if (apiResponseData.getScExecRetVal().getV_string()!=null) {
-                        retVal.append("v_string=");
-                        retVal.append(apiResponseData.getScExecRetVal().getV_string());
-                        retVal.append("\n");
-                    }
-                    Utils.showInfo("Smart-contract executed successfully; Returned value:\n" + retVal.toString());
+                com.credits.thrift.generated.Variant res = apiResponseData.getScExecRetVal();
+                if (res != null) {
+                    String retVal = res.toString() + '\n';
+                    Utils.showInfo("Smart-contract executed successfully; Returned value:\n" + retVal);
                 } else
                     Utils.showInfo("Smart-contract executed successfully");
             } else {
                 Utils.showError(apiResponseData.getMessage());
             }
-        } catch (LevelDbClientException e) {
-            LOGGER.error(e.toString(), e);
-            Utils.showError(e.toString());
-        } catch (CreditsNodeException e) {
-            LOGGER.error(e.toString(), e);
-            Utils.showError(e.toString());
         } catch (CreditsException e) {
             LOGGER.error(e.toString(), e);
             Utils.showError(e.toString());
