@@ -1,6 +1,7 @@
 package com.credits.wallet.desktop.utils;
 
 import com.credits.wallet.desktop.thread.GetBalanceUpdater;
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.stage.StageStyle;
@@ -28,8 +29,7 @@ public class FormUtils {
 
     public static void displayBalance(String coin, Label label) {
         label.setText(MSG_RETRIEVE_BALANCE);
-        Thread getBalanceThread = new Thread(new GetBalanceUpdater(coin, label));
-        getBalanceThread.start();
+        Platform.runLater(new GetBalanceUpdater(coin, label));
     }
 }
 
