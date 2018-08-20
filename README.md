@@ -28,6 +28,16 @@ Processor (CPU): Intel® Core ™ i3 or AMD Phenom ™ X3 8650
 Memory (RAM): 4–8 Gb
 SSD: 1 Gb
 Internet connection: 5 Mbit/s.</p>
+<h2>Contribution</h2>
+<p>Thank you for considering to help out with the source code! We welcome contributions from anyone on the internet, and are grateful for even the smallest of fixes!
+If you'd like to contribute to CS-Wallet-Desktop, please fork, fix, commit and send a pull request for the maintainers to review and merge into the main code base. If you wish to submit more complex changes though, please check up with the core devs first on our <a href="https://developers.credits.com/">Developers portal</a> and <a href="https://github.com/CREDITSCOM/Documentation/blob/master/Contribution.md"> Contribution file</a> to ensure those changes are in line with the general philosophy of the project and/or get some early feedback which can make both your efforts much lighter as well as our review and merge procedures quick and simple.
+Please make sure your contributions adhere to our coding guidelines:</p>
+<ul>
+<li>Code must adhere to the <a href="https://google.github.io/styleguide/javaguide.html">Google Java Style Guide</a></li>
+<li>Code must be well documented adhering the Google’s guidelines</li>
+<li>Pull requests need to be based on and opened against the master branch</li>
+<li>Commit messages should be prefixed with the package(s) they modify</li>
+</ul>
 <h3>Resources</h3>
 
 <a href="https://credits.com//">CREDITS Website</a>
