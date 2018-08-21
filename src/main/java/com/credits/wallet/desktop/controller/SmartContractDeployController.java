@@ -90,7 +90,7 @@ public class SmartContractDeployController extends Controller implements Initial
             }
         });
 
-        this.codeArea.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved()))
+        this.codeArea.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
                 .subscribe(change -> {
                     String curCode = this.codeArea.getText();
 
@@ -193,8 +193,8 @@ public class SmartContractDeployController extends Controller implements Initial
 
             ApiResponseData apiResponseData =
                     AppState.apiClient.deploySmartContract(transactionInnerId,
-                            AppState.account.getBytes(), transactionTarget.getBytes(), smartContractInvocationData,
-                            new byte[signature.remaining()]);
+                            Converter.decodeFromBASE58(AppState.account), Converter.decodeFromBASE58(transactionTarget), smartContractInvocationData,
+                            signature.array());
             if (apiResponseData.getCode() == ApiClient.API_RESPONSE_SUCCESS_CODE) {
                 StringSelection selection = new StringSelection(token);
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
