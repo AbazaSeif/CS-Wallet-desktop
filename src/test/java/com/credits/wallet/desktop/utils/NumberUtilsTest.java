@@ -29,7 +29,7 @@ public class NumberUtilsTest {
 
     @Test
     public void correctNumTest() {
-        //Checking removing non-digit characters
+        // Checking removing non-digit characters
         notDigits.forEach(character -> {
             String text = String.valueOf(character);
             textField.setText(text);
@@ -37,18 +37,18 @@ public class NumberUtilsTest {
         });
         Assert.assertEquals("", textField.getText());
 
-        //Checking adding zero if first char is separator
+        // Checking adding zero if first char is separator
         textField.setText(AppState.decimalSeparator);
         NumberUtils.correctNum(AppState.decimalSeparator, textField);
         Assert.assertEquals("0" + AppState.decimalSeparator, textField.getText());
 
-        //Checking removing second or more separator
+        // Checking removing second or more separator
         String secSepText = "123" + AppState.decimalSeparator;
         textField.setText(secSepText + AppState.decimalSeparator);
         NumberUtils.correctNum(AppState.decimalSeparator, textField);
         Assert.assertEquals(secSepText, textField.getText());
 
-        //Checking limiting length
+        // Checking limiting length
         String additionalLengthChar = "1";
         String limitLengthText = "123" + AppState.decimalSeparator + "123456789012345678";
         textField.setText(limitLengthText + additionalLengthChar);
