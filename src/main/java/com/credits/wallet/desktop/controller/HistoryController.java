@@ -91,7 +91,7 @@ public class HistoryController extends Controller implements Initializable {
         List<TransactionData> transactionList;
         try {
             transactionList =
-                AppState.apiClient.getTransactions(AppState.account.getBytes(), (pageNumber - 1) * pageSize, pageSize);
+                AppState.apiClient.getTransactions(Converter.decodeFromBASE58(AppState.account), (pageNumber - 1) * pageSize, pageSize);
         } catch (LevelDbClientException e) {
             LOGGER.error(ERR_GETTING_TRANSACTION_HISTORY, e);
             FormUtils.showError(ERR_GETTING_TRANSACTION_HISTORY);
@@ -107,6 +107,13 @@ public class HistoryController extends Controller implements Initializable {
             LOGGER.error(AppState.NODE_ERROR + ": " + e.getMessage(), e);
             FormUtils.showError(AppState.NODE_ERROR);
 
+            return;
+        } catch (CreditsCommonException e) {
+            LOGGER.error(ERR_GETTING_TRANSACTION_HISTORY, e);
+            FormUtils.showError(ERR_GETTING_TRANSACTION_HISTORY);
+
+            LOGGER.error(AppState.NODE_ERROR + ": " + e.toString(), e);
+            FormUtils.showError(AppState.NODE_ERROR);
             return;
         }
 
