@@ -163,7 +163,7 @@ public class SmartContractDeployController extends Controller implements Initial
             String hashState = ApiUtils.generateSmartContractHashState(byteCode);
 
             SmartContractInvocationData smartContractInvocationData =
-                    new SmartContractInvocationData(javaCode, byteCode, hashState, "", new ArrayList<String>(), true);
+                    new SmartContractInvocationData(javaCode, byteCode, hashState, "", new ArrayList<String>(), false);
 
             long transactionInnerId = ApiUtils.generateTransactionInnerId();
             String transactionTarget = generatePublicKeyBase58();
@@ -199,7 +199,7 @@ public class SmartContractDeployController extends Controller implements Initial
                 StringSelection selection = new StringSelection(token);
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(selection, selection);
-                Utils.showInfo(String.format("Token\n\n%s\n\nhas generated and copied to clipboard", token));
+                Utils.showInfo(String.format("Smart-contract address\n\n%s\n\nhas generated and copied to clipboard", transactionTarget));
             } else {
                 Utils.showError(String.format("Error deploying smart contract: %s", apiResponseData.getMessage()));
             }
