@@ -3,9 +3,6 @@ package com.credits.wallet.desktop.utils;
 import com.credits.common.exception.CreditsCommonException;
 import com.credits.common.exception.CreditsException;
 import com.credits.common.utils.Converter;
-import com.credits.common.utils.TcpClient;
-import com.credits.crypto.Blake2S;
-import com.credits.crypto.Ed25519;
 import com.credits.crypto.Md5;
 import com.credits.leveldb.client.data.TransactionFlowData;
 import com.credits.leveldb.client.exception.CreditsNodeException;
@@ -15,8 +12,6 @@ import com.credits.wallet.desktop.utils.struct.TransactionStruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.util.Date;
@@ -28,14 +23,14 @@ public class ApiUtils {
     public static void callTransactionFlow(long innerId, String source, String target, BigDecimal amount,
         BigDecimal balance, byte currency, BigDecimal fee) throws LevelDbClientException,
             CreditsNodeException, CreditsCommonException {
-
+        //formation of parameters of the main transaction
         TransactionStruct tStruct = new TransactionStruct(innerId, source, target, amount, fee, currency, null);
 
         ByteBuffer signature=Utils.signTransactionStruct(tStruct);
 
         TransactionFlowData transactionFlowData =
-            new TransactionFlowData(innerId, source.getBytes(), target.getBytes(), amount, balance, currency,
-                    new byte[signature.remaining()], fee);
+            new TransactionFlowData(innerId, Converter.decodeFromBASE58(source), Converter.decodeFromBASE58(target), amount, balance, currency,
+                    signature.array(), fee);
 
         AppState.apiClient.transactionFlow(
                 transactionFlowData,
