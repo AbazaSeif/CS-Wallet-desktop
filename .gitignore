@@ -25,6 +25,5 @@ target
 
 coins.csv
 temp
-Contract.java
-Contract.java
-*.java
+pom.xml
+pom.xml
