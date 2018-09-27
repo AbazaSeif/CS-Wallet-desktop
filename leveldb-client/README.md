@@ -1,5 +1,5 @@
 <h2>LevelDB client<h2>
-<p>Thrift client app to connect to a LevelDB storage<p>
+<p>Thrift client to interact with the database<p>
 <h3> Installing<h3>
 <ol>
 <li>Download the archive to local repository</li>
