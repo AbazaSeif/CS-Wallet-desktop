@@ -1,16 +1,16 @@
 package com.credits.wallet.desktop.struct;
 
 public class TransactionTabRow {
-    private long innerId;
+    private String innerId;
     private String target;
     private byte currency;
     private String amount;
 
-    public long getInnerId() {
+    public String getInnerId() {
         return innerId;
     }
 
-    public void setInnerId(long innerId) {
+    public void setInnerId(String innerId) {
         this.innerId = innerId;
     }
 
