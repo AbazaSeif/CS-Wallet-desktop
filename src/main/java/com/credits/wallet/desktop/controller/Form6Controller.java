@@ -71,7 +71,6 @@ public class Form6Controller extends Controller implements Initializable {
 
         AppState.amount = Converter.toBigDecimal(numAmount.getText());
         AppState.toAddress = txKey.getText();
-        AppState.innerId = ApiUtils.generateTransactionInnerId();
 
         // VALIDATE
         boolean isValidationSuccessful = true;
@@ -91,6 +90,7 @@ public class Form6Controller extends Controller implements Initializable {
             numAmount.setStyle(numAmount.getStyle().replace("-fx-border-color: #ececec", "-fx-border-color: red"));
             isValidationSuccessful = false;
         }
+
         try {
             Validator.validateToAddress(AppState.toAddress);
         } catch (LevelDbClientException e) {
@@ -107,8 +107,6 @@ public class Form6Controller extends Controller implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         clearLabErr();
-
-        labCredit.setText("0");
 
         // Fill coin list
         cbCoin.getItems().clear();
@@ -132,6 +130,7 @@ public class Form6Controller extends Controller implements Initializable {
                     }
                 });
         } catch (IOException e) {
+            //TODO: Handle this somehow
         }
 
         cbCoin.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
@@ -164,16 +163,11 @@ public class Form6Controller extends Controller implements Initializable {
         });
 
         if (AppState.noClearForm6) {
-            cbCoin.getSelectionModel().select(AppState.coin);
             txKey.setText(AppState.toAddress);
             numAmount.setText(Converter.toString(AppState.amount));
             numFee.setText(Converter.toString(AppState.transactionFeeValue));
 
             AppState.noClearForm6 = false;
-        } else {
-            if (cbCoin.getItems().size() > 0) {
-                cbCoin.getSelectionModel().select(0);
-            }
         }
     }
 
