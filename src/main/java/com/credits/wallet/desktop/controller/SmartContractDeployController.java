@@ -10,6 +10,7 @@ import com.credits.leveldb.client.data.SmartContractInvocationData;
 import com.credits.leveldb.client.exception.CreditsNodeException;
 import com.credits.leveldb.client.exception.LevelDbClientException;
 import com.credits.leveldb.client.util.ApiClientUtils;
+import com.credits.leveldb.client.util.TransactionTypeEnum;
 import com.credits.wallet.desktop.App;
 import com.credits.wallet.desktop.AppState;
 import com.credits.wallet.desktop.exception.CompilationException;
@@ -21,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
@@ -70,6 +72,9 @@ public class SmartContractDeployController extends Controller implements Initial
     private Pane paneCode;
 
     @FXML
+    private ScrollPane scCodePanel;
+
+    @FXML
     private TreeView<Label> classTreeView;
 
     @Override
@@ -91,38 +96,38 @@ public class SmartContractDeployController extends Controller implements Initial
         });
 
         this.codeArea.richChanges().filter(ch -> !ch.getInserted().equals(ch.getRemoved())) // XXX
-                .subscribe(change -> {
-                    String curCode = this.codeArea.getText();
+            .subscribe(change -> {
+                String curCode = this.codeArea.getText();
 
-                    // Replace TAB to 4 spaces
-                    if (curCode.contains("\t")) {
-                        this.codeArea.replaceText(0, curCode.length(), curCode.replace("\t", "    "));
-                        curCode = this.codeArea.getText();
-                    }
+                // Replace TAB to 4 spaces
+                if (curCode.contains("\t")) {
+                    this.codeArea.replaceText(0, curCode.length(), curCode.replace("\t", "    "));
+                    curCode = this.codeArea.getText();
+                }
 
-                    if (!curCode.contains(NON_CHANGED_STR)) {
+                if (!curCode.contains(NON_CHANGED_STR)) {
+                    this.codeArea.replaceText(0, curCode.length(), this.prevCode);
+                } else {
+                    int i1 = curCode.indexOf(NON_CHANGED_STR);
+                    if (curCode.indexOf(NON_CHANGED_STR, i1 + 1) > 0) {
                         this.codeArea.replaceText(0, curCode.length(), this.prevCode);
-                    } else {
-                        int i1 = curCode.indexOf(NON_CHANGED_STR);
-                        if (curCode.indexOf(NON_CHANGED_STR, i1 + 1) > 0) {
-                            this.codeArea.replaceText(0, curCode.length(), this.prevCode);
-                        }
                     }
-                    this.prevCode = this.codeArea.getText();
-                });
+                }
+                this.prevCode = this.codeArea.getText();
+            });
 
         this.codeArea.replaceText(0, 0, DEFAULT_SOURCE_CODE);
 
         this.tabErrors = new TableView();
-        this.tabErrors.setPrefHeight(this.paneCode.getPrefHeight() * 0.3);
-        this.tabErrors.setPrefWidth(this.paneCode.getPrefWidth());
+        this.tabErrors.setPrefHeight(this.scCodePanel.getPrefHeight() * 0.3);
+        this.tabErrors.setPrefWidth(this.scCodePanel.getPrefWidth());
 
         TableColumn tabErrorsColLine = new TableColumn();
         tabErrorsColLine.setText("Line");
-        tabErrorsColLine.setPrefWidth(this.paneCode.getPrefWidth() * 0.1);
+        tabErrorsColLine.setPrefWidth(this.scCodePanel.getPrefWidth() * 0.1);
         TableColumn tabErrorsColText = new TableColumn();
         tabErrorsColText.setText("Error");
-        tabErrorsColText.setPrefWidth(this.paneCode.getPrefWidth() * 0.9);
+        tabErrorsColText.setPrefWidth(this.scCodePanel.getPrefWidth() * 0.9);
         this.tabErrors.getColumns().add(tabErrorsColLine);
         this.tabErrors.getColumns().add(tabErrorsColText);
 
@@ -163,58 +168,43 @@ public class SmartContractDeployController extends Controller implements Initial
             String hashState = ApiUtils.generateSmartContractHashState(byteCode);
 
             SmartContractInvocationData smartContractInvocationData =
-                    new SmartContractInvocationData(javaCode, byteCode, hashState, "", new ArrayList<String>(), false);
+                new SmartContractInvocationData(javaCode, byteCode, hashState, "", new ArrayList<String>(), false);
 
             long transactionInnerId = ApiUtils.generateTransactionInnerId();
             String transactionTarget = generatePublicKeyBase58();
             LOGGER.info("transactionTarget = {}", transactionTarget);
 
             LOGGER.debug("SmartContractData structure ^^^^^");
-            LOGGER.debug("sourceCode = "+smartContractInvocationData.getSourceCode());
-            if (smartContractInvocationData.getByteCode()!=null)
-                LOGGER.debug("byteCode.length = "+smartContractInvocationData.getByteCode().length);
-            else
+            LOGGER.debug("sourceCode = " + smartContractInvocationData.getSourceCode());
+            if (smartContractInvocationData.getByteCode() != null) {
+                LOGGER.debug("byteCode.length = " + smartContractInvocationData.getByteCode().length);
+            } else {
                 LOGGER.debug("byteCode.length = 0");
-            LOGGER.debug("hashState = "+smartContractInvocationData.getHashState());
-            LOGGER.debug("method = "+smartContractInvocationData.getMethod());
-            if (smartContractInvocationData.getParams()!=null) {
+            }
+            LOGGER.debug("hashState = " + smartContractInvocationData.getHashState());
+            LOGGER.debug("method = " + smartContractInvocationData.getMethod());
+            if (smartContractInvocationData.getParams() != null) {
                 LOGGER.debug("params.length = " + smartContractInvocationData.getParams().size());
                 for (int i = 0; i < smartContractInvocationData.getParams().size(); i++) {
                     LOGGER.debug("params." + i + " = " + smartContractInvocationData.getParams().get(i));
                 }
-            } else
+            } else {
                 LOGGER.debug("params.length = 0");
+            }
             LOGGER.debug("SmartContractData structure vvvvv");
 
             byte[] scBytes = ApiClientUtils.serializeByThrift(smartContractInvocationData);
-            TransactionStruct tStruct = new TransactionStruct(transactionInnerId, AppState.account, transactionTarget,
-                    new BigDecimal(0), new BigDecimal(0), (byte)1, scBytes);
-            ByteBuffer signature=Utils.signTransactionStruct(tStruct);
+            TransactionStruct tStruct =
+                new TransactionStruct(transactionInnerId, AppState.account, transactionTarget, new BigDecimal(0),
+                    new BigDecimal(0), (byte) 1, scBytes);
+            ByteBuffer signature = Utils.signTransactionStruct(tStruct);
 
-            ApiResponseData apiResponseData =
-                    AppState.apiClient.deploySmartContract(transactionInnerId,
-                            Converter.decodeFromBASE58(AppState.account), Converter.decodeFromBASE58(transactionTarget), smartContractInvocationData,
-                            signature.array());
-            if (apiResponseData.getCode() == ApiClient.API_RESPONSE_SUCCESS_CODE) {
-                StringSelection selection = new StringSelection(transactionTarget);
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(selection, selection);
-                Utils.showInfo(String.format("Smart-contract address\n\n%s\n\nhas generated and copied to clipboard", transactionTarget));
-            } else {
-                Utils.showError(String.format("Error deploying smart contract: %s", apiResponseData.getMessage()));
-            }
-        } catch (LevelDbClientException e) {
+            AppState.apiClient.deploySmartContract(transactionInnerId, Converter.decodeFromBASE58(AppState.account),
+                Converter.decodeFromBASE58(transactionTarget), smartContractInvocationData, signature.array(),
+                TransactionTypeEnum.DEPLOY_SMARTCONTRACT);
+        } catch (CompilationException | CreditsException e) {
             LOGGER.error(e.toString(), e);
-            Utils.showError(AppState.NODE_ERROR + ": "+e.getMessage());
-        } catch (CreditsNodeException e) {
-            LOGGER.error(e.toString(), e);
-            Utils.showError(AppState.NODE_ERROR + ": "+e.getMessage());
-        } catch (CreditsException e) {
-            LOGGER.error(e.toString(), e);
-            Utils.showError(AppState.NODE_ERROR + ": "+e.getMessage());
-        } catch (CompilationException e) {
-            LOGGER.error(e.toString(), e);
-            Utils.showError(e.getMessage());
+            Utils.showError(AppState.NODE_ERROR + ": " + e.getMessage());
         }
     }
 
@@ -241,8 +231,8 @@ public class SmartContractDeployController extends Controller implements Initial
         classMembers.addAll(methods);
 
         classMembers.forEach(classMember -> {
-            if (classMember instanceof  MethodDeclaration) {
-                ((MethodDeclaration)classMember).setBody(null);
+            if (classMember instanceof MethodDeclaration) {
+                ((MethodDeclaration) classMember).setBody(null);
             }
 
             Label label = new Label(classMember.toString());
@@ -286,6 +276,7 @@ public class SmartContractDeployController extends Controller implements Initial
             this.codeArea.setPrefHeight(this.paneCode.getPrefHeight());
             this.paneCode.getChildren().clear();
             this.paneCode.getChildren().add(this.codeArea);
+            Utils.showInfo("Everything is OK");
         }
     }
 
