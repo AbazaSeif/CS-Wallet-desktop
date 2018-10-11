@@ -8,11 +8,12 @@ import com.credits.leveldb.client.data.ApiResponseData;
 import com.credits.leveldb.client.data.SmartContractData;
 import com.credits.leveldb.client.data.SmartContractInvocationData;
 import com.credits.leveldb.client.util.ApiClientUtils;
-import com.credits.thrift.generated.Variant;
+import com.credits.leveldb.client.util.TransactionTypeEnum;
 import com.credits.wallet.desktop.App;
 import com.credits.wallet.desktop.AppState;
 import com.credits.wallet.desktop.exception.WalletDesktopException;
 import com.credits.wallet.desktop.utils.ApiUtils;
+import com.credits.wallet.desktop.utils.ContactSaver;
 import com.credits.wallet.desktop.utils.FormUtils;
 import com.credits.wallet.desktop.utils.SmartContractUtils;
 import com.credits.wallet.desktop.utils.Utils;
@@ -20,10 +21,12 @@ import com.credits.wallet.desktop.utils.struct.TransactionStruct;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.fxmisc.richtext.CodeArea;
@@ -34,11 +37,16 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class SmartContractController extends Controller implements Initializable {
 
+    private static final String PERSONAL_CONTRACTS = "Personal contracts";
+    private static final String FOUND_CONTRACTS = "Found contracts";
+    private static final String SMART_CONTRACTS = "Smart contracts";
     private static Logger LOGGER = LoggerFactory.getLogger(SmartContractController.class);
 
 
@@ -55,7 +63,7 @@ public class SmartContractController extends Controller implements Initializable
     private TextField tfSearchAddress;
 
     @FXML
-    private AnchorPane pCodePanel;
+    private StackPane pCodePanel;
 
     @FXML
     private ScrollPane spCodePanel;
@@ -73,6 +81,8 @@ public class SmartContractController extends Controller implements Initializable
 
     private SmartContractData currentSmartContract;
 
+    private MethodDeclaration currentMethod;
+
     @FXML
     private void handleBack() {
         App.showForm("/fxml/form6.fxml", "Wallet");
@@ -87,7 +97,9 @@ public class SmartContractController extends Controller implements Initializable
     private void handleSearch() {
         String address = tfSearchAddress.getText();
         try {
-            SmartContractData smartContractData = AppState.apiClient.getSmartContract(Converter.decodeFromBASE58(address));
+            SmartContractData smartContractData =
+                AppState.apiClient.getSmartContract(Converter.decodeFromBASE58(address));
+            saveInSmartContractTree(smartContractData);
             this.refreshFormState(smartContractData);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
@@ -95,12 +107,84 @@ public class SmartContractController extends Controller implements Initializable
         }
     }
 
+    private void saveInSmartContractTree(SmartContractData smartContractData) {
+        String contractAddress = Converter.encodeToBASE58(smartContractData.getAddress());
+
+        Map<String, TreeItem<Label>> rootItemMap = new HashMap<>();
+        this.tvContracts.getRoot().getChildren().forEach((p) -> rootItemMap.put(p.getValue().getText(), p));
+
+        TreeItem<Label> foundContractsList = rootItemMap.get(FOUND_CONTRACTS);
+        boolean newRoot = false;
+        if (foundContractsList == null) {
+            foundContractsList = new TreeItem<>(new Label(FOUND_CONTRACTS));
+            newRoot = true;
+        }
+        TreeItem<Label> personalCoontractsList = rootItemMap.get(PERSONAL_CONTRACTS);
+
+        if (notElementInList(contractAddress, personalCoontractsList)) {
+            if (notElementInList(contractAddress, foundContractsList)) {
+                Label label = new Label(contractAddress);
+                setSmartContractLabelEventOnClick(smartContractData, label);
+                foundContractsList.getChildren().add(new TreeItem<>(label));
+                if(newRoot) {
+                    this.tvContracts.getRoot().getChildren().add(foundContractsList);
+                }
+            }
+            Map<String, SmartContractData> map = new HashMap<>();
+            foundContractsList.getChildren().forEach((k) -> map.put(k.getValue().getText(), smartContractData));
+            ContactSaver.serialize(map);
+        }
+    }
+
+    private boolean notElementInList(String element, TreeItem<Label> coontractsRootItem) {
+        return coontractsRootItem.getChildren().stream().noneMatch((el) -> el.getValue().getText().equals(element));
+    }
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        this.codeArea = SmartContractUtils.initCodeArea(this.pCodePanel);
+        initSmartContractTree();
+        this.codeArea.setEditable(false);
+        this.codeArea.copy();
+    }
+
+    private void initSmartContractTree() {
+        TreeItem<Label> rootItem = new TreeItem<>(new Label(SMART_CONTRACTS));
+        TreeItem<Label> smartContractRootItem = new TreeItem<>(new Label(PERSONAL_CONTRACTS));
+        TreeItem<Label> foundContractRootItem = new TreeItem<>(new Label(FOUND_CONTRACTS));
+        try {
+            this.refreshFormState(null);
+            List<SmartContractData> smartContracts =
+                AppState.apiClient.getSmartContracts(Converter.decodeFromBASE58(AppState.account));
+            smartContracts.forEach(smartContractData -> {
+
+                Label label = new Label(Converter.encodeToBASE58(smartContractData.getAddress()));
+                label.setPadding(new Insets(0,0,0,-20));
+                setSmartContractLabelEventOnClick(smartContractData, label);
+                smartContractRootItem.getChildren().add(new TreeItem<>(label));
+            });
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            FormUtils.showError(e.getMessage());
+        }
+        Map<String, SmartContractData> map = ContactSaver.deserialize();
+        rootItem.getChildren().add(smartContractRootItem);
+        if (map != null && map.size() > 0) {
+            map.forEach((k, v) -> {
+                Label label = new Label(k);
+                setSmartContractLabelEventOnClick(v, label);
+                foundContractRootItem.getChildren().add(new TreeItem<>(label));
+            });
+            rootItem.getChildren().add(foundContractRootItem);
+        }
+        this.tvContracts.setShowRoot(false);
+        this.tvContracts.setRoot(rootItem);
+    }
+
     private void refreshFormState(SmartContractData smartContractData) throws WalletDesktopException {
-        if (
-                smartContractData == null
-                || smartContractData.getHashState().isEmpty()
-                || smartContractData.getAddress().length==0
-                ) {
+        if (smartContractData == null || smartContractData.getHashState().isEmpty() ||
+            smartContractData.getAddress().length == 0) {
             this.pControls.setVisible(false);
             this.spCodePanel.setVisible(false);
         } else {
@@ -120,70 +204,34 @@ public class SmartContractController extends Controller implements Initializable
         }
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-
-        this.codeArea = SmartContractUtils.initCodeArea(this.pCodePanel);
-        TreeItem<Label> rootItem = new TreeItem<>(new Label("Smart contracts"));
-
-        try {
-            this.refreshFormState(null);
-            List<SmartContractData> smartContracts = AppState.apiClient.getSmartContracts(Converter.decodeFromBASE58(AppState.account));
-            smartContracts.forEach(smartContractData -> {
-
-                Label label = new Label(Converter.encodeToBASE58(smartContractData.getAddress()));
-
-                label.setOnMousePressed(event -> {
-                    if (event.isPrimaryButtonDown()) {
-                        if(event.getClickCount() == 2){
-                            try {
-                                this.refreshFormState(smartContractData);
-                            } catch (WalletDesktopException e) {
-                                LOGGER.error(e.getMessage(), e);
-                                FormUtils.showError(e.getMessage());
-                            }
-                        }
-                    }
-                });
-
-                rootItem.getChildren().add(new TreeItem<>(label));
-            });
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            FormUtils.showError(e.getMessage());
-        }
-
-        this.tvContracts.setRoot(rootItem);
-        this.codeArea.setEditable(false);
-        this.codeArea.copy();
-    }
-
     @FXML
     private void cbMethodsOnAction() {
         this.pParams.setVisible(false);
-        MethodDeclaration selectedMethod = this.cbMethods.getSelectionModel().getSelectedItem();
-        if (selectedMethod == null) {
+        this.currentMethod = this.cbMethods.getSelectionModel().getSelectedItem();
+        if (this.currentMethod == null) {
             return;
         }
-        List<SingleVariableDeclaration> params = SourceCodeUtils.getMethodParameters(selectedMethod);
+        List<SingleVariableDeclaration> params = SourceCodeUtils.getMethodParameters(this.currentMethod);
         this.pParamsContainer.getChildren().clear();
         if (params.size() > 0) {
             this.pParams.setVisible(true);
             double layoutY = 10;
             for (SingleVariableDeclaration param : params) {
                 TextField paramValueTextField = new TextField();
-                paramValueTextField.setLayoutX(250);
+                paramValueTextField.setLayoutX(150);
                 paramValueTextField.setLayoutY(layoutY);
-                paramValueTextField.setStyle("-fx-background-color:  #fff; -fx-border-width: 1; -fx-border-color:  #000; -fx-font-size: 16px");
-                paramValueTextField.setPrefSize(150, 56);
+                paramValueTextField.setStyle(
+                    "-fx-background-color:  #fff; -fx-border-width: 1; -fx-border-color:  #000; -fx-font-size: 16px");
+                paramValueTextField.setPrefSize(200, 30);
                 Label paramNameLabel = new Label(param.toString());
                 paramNameLabel.setLayoutX(10);
                 paramNameLabel.setLayoutY(layoutY + 15);
                 paramNameLabel.setStyle("-fx-font-size: 18px");
                 paramNameLabel.setLabelFor(paramValueTextField);
                 this.pParamsContainer.getChildren().addAll(paramNameLabel, paramValueTextField);
-                layoutY += 70;
+                layoutY += 40;
             }
+            this.pParamsContainer.setPrefHeight(layoutY);
         }
     }
 
@@ -192,54 +240,66 @@ public class SmartContractController extends Controller implements Initializable
         try {
             String method = cbMethods.getSelectionModel().getSelectedItem().getName().getIdentifier();
             List<String> params = new ArrayList<>();
+            List<SingleVariableDeclaration> currentMethodParams =
+                SourceCodeUtils.getMethodParameters(this.currentMethod);
             ObservableList<Node> paramsContainerChildren = this.pParamsContainer.getChildren();
-            paramsContainerChildren.forEach(node -> {
-                if (node instanceof TextField) {
-                    String paramValue = ((TextField)node).getText();
-                    params.add(paramValue);
-                }
-            });
 
-            List<Variant> varParams = new ArrayList<>();
-            for (String p : params) {
-                Variant var = new Variant();
-                var.setV_string(p);
-                varParams.add(var);
+            int i = 0;
+            for (Node node : paramsContainerChildren) {
+                if (node instanceof TextField) {
+                    SingleVariableDeclaration variableDeclaration = currentMethodParams.get(i);
+                    String className = SourceCodeUtils.parseClassName(variableDeclaration);
+                    String paramValue = ((TextField) node).getText();
+                    String paramValueProcessed =
+                        SourceCodeUtils.processSmartContractMethodParameterValue(className, paramValue);
+
+                    params.add(paramValueProcessed);
+
+                    ++i;
+                }
             }
 
             long transactionId = ApiUtils.generateTransactionInnerId();
             SmartContractData smartContractData = this.currentSmartContract;
 
             SmartContractInvocationData smartContractInvocationData =
-                    new SmartContractInvocationData("", new byte[0],
-                            smartContractData.getHashState(), method, params, false);
+                new SmartContractInvocationData("", new byte[0], smartContractData.getHashState(), method, params,
+                    false);
 
             byte[] scBytes = ApiClientUtils.serializeByThrift(smartContractInvocationData);
             TransactionStruct tStruct = new TransactionStruct(transactionId, AppState.account,
-                    Converter.encodeToBASE58(this.currentSmartContract.getAddress()),
-                    new BigDecimal(0), new BigDecimal(0), (byte)1, scBytes);
-            ByteBuffer signature=Utils.signTransactionStruct(tStruct);
+                Converter.encodeToBASE58(this.currentSmartContract.getAddress()), new BigDecimal(0), new BigDecimal(0),
+                (byte) 1, scBytes);
+            ByteBuffer signature = Utils.signTransactionStruct(tStruct);
 
-            ApiResponseData apiResponseData = AppState.apiClient.executeSmartContract(
-                    transactionId,
-                    Converter.decodeFromBASE58(AppState.account),
-                    this.currentSmartContract.getAddress(),
-                    smartContractInvocationData,
-                    signature.array()
-            );
-            if (apiResponseData.getCode() == ApiClient.API_RESPONSE_SUCCESS_CODE) {
-                com.credits.thrift.generated.Variant res = apiResponseData.getScExecRetVal();
-                if (res != null) {
-                    String retVal = res.toString() + '\n';
-                    Utils.showInfo("Smart-contract executed successfully; Returned value:\n" + retVal);
-                } else
-                    Utils.showInfo("Smart-contract executed successfully");
-            } else {
-                Utils.showError(apiResponseData.getMessage());
-            }
+            ApiResponseData apiResponseData =
+                AppState.apiClient.executeSmartContract(transactionId, Converter.decodeFromBASE58(AppState.account),
+                    this.currentSmartContract.getAddress(), smartContractInvocationData, signature.array(),
+                    TransactionTypeEnum.EXECUTE_SMARTCONTRACT);
         } catch (CreditsException e) {
             LOGGER.error(e.toString(), e);
             Utils.showError(e.toString());
         }
     }
+
+    @FXML
+    private void handleFavorite() {
+
+    }
+
+    private void setSmartContractLabelEventOnClick(SmartContractData smartContractData, Label label) {
+        label.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown()) {
+                if (event.getClickCount() == 2) {
+                    try {
+                        this.refreshFormState(smartContractData);
+                    } catch (WalletDesktopException e) {
+                        LOGGER.error(e.getMessage(), e);
+                        FormUtils.showError(e.getMessage());
+                    }
+                }
+            }
+        });
+    }
+
 }
