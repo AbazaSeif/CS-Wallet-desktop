@@ -2,6 +2,7 @@ package com.credits.wallet.desktop.controller;
 
 import com.credits.common.exception.CreditsCommonException;
 import com.credits.common.utils.Converter;
+import com.credits.leveldb.client.ApiTransactionExecutor;
 import com.credits.leveldb.client.data.TransactionData;
 import com.credits.leveldb.client.exception.CreditsNodeException;
 import com.credits.leveldb.client.exception.LevelDbClientException;
@@ -11,7 +12,11 @@ import com.credits.wallet.desktop.struct.TransactionTabRow;
 import com.credits.wallet.desktop.utils.FormUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +40,7 @@ public class HistoryController extends Controller implements Initializable {
     private ComboBox<Integer> cbPageSize;
 
     @FXML
-    private TableView tabTransaction;
+    private TableView<TransactionTabRow> tabTransaction;
 
     @FXML
     private Label labPage;
@@ -90,9 +95,9 @@ public class HistoryController extends Controller implements Initializable {
         tabTransaction.getItems().clear();
         List<TransactionData> transactionList;
         try {
-            transactionList =
-                AppState.apiClient.getTransactions(Converter.decodeFromBASE58(AppState.account), (pageNumber - 1) * pageSize, pageSize);
-        } catch (LevelDbClientException e) {
+            transactionList = AppState.apiClient.getTransactions(Converter.decodeFromBASE58(AppState.account),
+                (pageNumber - 1) * pageSize, pageSize);
+        } catch (LevelDbClientException | CreditsCommonException e) {
             LOGGER.error(ERR_GETTING_TRANSACTION_HISTORY, e);
             FormUtils.showError(ERR_GETTING_TRANSACTION_HISTORY);
 
@@ -108,22 +113,26 @@ public class HistoryController extends Controller implements Initializable {
             FormUtils.showError(AppState.NODE_ERROR);
 
             return;
-        } catch (CreditsCommonException e) {
-            LOGGER.error(ERR_GETTING_TRANSACTION_HISTORY, e);
-            FormUtils.showError(ERR_GETTING_TRANSACTION_HISTORY);
-
-            LOGGER.error(AppState.NODE_ERROR + ": " + e.toString(), e);
-            FormUtils.showError(AppState.NODE_ERROR);
-            return;
         }
 
         btnNext.setDisable(transactionList.size() < pageSize);
-
+        if (ApiTransactionExecutor.sourceMap.get(AppState.account) != null) {
+            synchronized (ApiTransactionExecutor.sourceMap.get(AppState.account)) {
+                ApiTransactionExecutor.sourceMap.get(AppState.account).forEach((key, value) -> {
+                    TransactionTabRow tableRow = new TransactionTabRow();
+                    tableRow.setAmount(Converter.toString(value.getAmount()));
+                    tableRow.setCurrency(value.getCurrency());
+                    tableRow.setTarget(Converter.encodeToBASE58(value.getTarget()));
+                    tableRow.setInnerId(key);
+                    tabTransaction.getItems().add(tableRow);
+                });
+            }
+        }
         transactionList.forEach(transactionData -> {
             TransactionTabRow tableRow = new TransactionTabRow();
             tableRow.setAmount(Converter.toString(transactionData.getAmount()));
             tableRow.setCurrency(transactionData.getCurrency());
-            tableRow.setTarget(new String(Converter.encodeToBASE58(transactionData.getTarget())));
+            tableRow.setTarget(Converter.encodeToBASE58(transactionData.getTarget()));
             tableRow.setInnerId(transactionData.getId());
             tabTransaction.getItems().add(tableRow);
         });
