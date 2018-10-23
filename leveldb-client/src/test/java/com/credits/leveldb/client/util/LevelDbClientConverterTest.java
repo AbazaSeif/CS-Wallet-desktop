@@ -32,7 +32,13 @@ public class LevelDbClientConverterTest {
 
     @Test
     public void bigDecimalToAmountTest() throws CreditsCommonException, LevelDbClientException {
-        String valueAsString ="1.1111111111111";
+        String valueAsString =
+//                    "111111119.1111111111111111111"
+//                    "0.1111111111111111"
+//                    "0.1"
+            "1.1111111111111"
+//                    "1.55555555555555"
+            ;
         BigDecimal value = com.credits.common.utils.Converter.toBigDecimal(valueAsString);
         LOGGER.info("bigDecimalToAmountTest, {}", LevelDbClientConverter.bigDecimalToAmount(value));
         Assert.assertEquals(1, value.intValue());
@@ -41,8 +47,14 @@ public class LevelDbClientConverterTest {
 
     @Test
     public void amountToBigDecimalTest() throws LevelDbClientException {
-        int integral =1111111111;
-        long fraction =999999999999999999L;
+        int integral =
+//                123456789
+                1111111111
+                ;
+        long fraction =
+//                123456789012345678L
+                999999999999999999L
+                ;
         Amount amount = new Amount(integral, fraction);
         BigDecimal bigDecimalValue = LevelDbClientConverter.amountToBigDecimal(amount);
         LOGGER.info("amountToBigDecimalTest, {}", bigDecimalValue);

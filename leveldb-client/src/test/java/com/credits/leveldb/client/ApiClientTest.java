@@ -8,6 +8,7 @@ import com.credits.leveldb.client.exception.CreditsNodeException;
 import com.credits.leveldb.client.exception.LevelDbClientException;
 import com.credits.leveldb.client.pool.ThriftClientPool;
 import com.credits.leveldb.client.thrift.API;
+import com.credits.leveldb.client.util.TransactionTypeEnum;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -148,8 +149,7 @@ public class ApiClientTest {
                     Converter.decodeFromBASE58(transactionSource),
                     Converter.decodeFromBASE58(transactionTarget),
                     smartContractInvocationData,
-                    "signature01".getBytes()
-            );
+                    "signature01".getBytes(), TransactionTypeEnum.DEPLOY_SMARTCONTRACT);
         } catch (CreditsCommonException e) {
             e.printStackTrace();
             assert false;
