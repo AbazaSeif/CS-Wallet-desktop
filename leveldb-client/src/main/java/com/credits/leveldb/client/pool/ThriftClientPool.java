@@ -82,7 +82,7 @@ public class ThriftClientPool<T extends TServiceClient> implements
         }
 
         public TProtocol make() {
-            TTransport transport = new TSocket(host, port);
+            TTransport transport = new TSocket(host, port,30000);
             try {
                 transport.open();
             } catch (TTransportException e) {
