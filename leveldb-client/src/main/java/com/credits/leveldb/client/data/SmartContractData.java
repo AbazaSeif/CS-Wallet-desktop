@@ -1,11 +1,12 @@
 package com.credits.leveldb.client.data;
 
-import com.credits.thrift.generated.Variant;
+import java.io.Serializable;
+import java.util.Arrays;
 
-import java.nio.ByteBuffer;
-import java.util.List;
-
-public class SmartContractData {
+/**
+ * Created by Rustem Saidaliyev on 16.05.2018.
+ */
+public class SmartContractData implements Serializable {
 
     private byte[] address;
     private byte[] deployer;
@@ -65,5 +66,41 @@ public class SmartContractData {
 
     public void setHashState(String hashState) {
         this.hashState = hashState;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        SmartContractData that = (SmartContractData) o;
+
+        if (!Arrays.equals(address, that.address)) {
+            return false;
+        }
+        if (!Arrays.equals(deployer, that.deployer)) {
+            return false;
+        }
+        if (sourceCode != null ? !sourceCode.equals(that.sourceCode) : that.sourceCode != null) {
+            return false;
+        }
+        if (!Arrays.equals(byteCode, that.byteCode)) {
+            return false;
+        }
+        return hashState != null ? hashState.equals(that.hashState) : that.hashState == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(address);
+        result = 31 * result + Arrays.hashCode(deployer);
+        result = 31 * result + (sourceCode != null ? sourceCode.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(byteCode);
+        result = 31 * result + (hashState != null ? hashState.hashCode() : 0);
+        return result;
     }
 }
