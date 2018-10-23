@@ -1,16 +1,12 @@
 package com.credits.common.utils.sourcecode;
 
 
+import com.credits.common.exception.CreditsCommonException;
+import com.credits.common.utils.Converter;
+import com.credits.common.utils.Validator;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jface.text.BadLocationException;
@@ -48,7 +44,7 @@ public class SourceCodeUtils {
 
     public static String normalizeSourceCode(String sourceCode) {
         String normalizedSourceCode =
-            sourceCode.replace("\r", " ").replace("\n", " ").replace("\t", " ").replace("{", " {");
+            sourceCode.replace("\r", " ").replace("\t", " ").replace("{", " {");
 
         while (normalizedSourceCode.contains("  ")) {
             normalizedSourceCode = normalizedSourceCode.replace("  ", " ");
@@ -216,4 +212,47 @@ public class SourceCodeUtils {
         // display the formatted string on the System out
         return document.get();
     }
+
+    public static String parseClassName(SingleVariableDeclaration singleVariableDeclaration) {
+        Type type = singleVariableDeclaration.getType();
+        if (type.isSimpleType()) {
+            SimpleType simpleType = (SimpleType)type;
+            return simpleType.getName().getFullyQualifiedName();
+        } else if (type.isParameterizedType()) {
+            ParameterizedType parameterizedType = (ParameterizedType)type;
+            SimpleType simpleType = (SimpleType)parameterizedType.getType();
+            String simpleTypeName = simpleType.getName().getFullyQualifiedName();
+            List parameterizedTypeArgumentList = parameterizedType.typeArguments();
+            if (parameterizedTypeArgumentList.size() == 1) {
+                String argumentClassName = ((SimpleType)parameterizedTypeArgumentList.get(0)).getName().getFullyQualifiedName();
+                return String.format("%s<%s>", simpleTypeName, argumentClassName);
+            } else {
+                return simpleTypeName;
+            }
+        }
+        throw new IllegalArgumentException(String.format("Unsupported org.eclipse.jdt.core.dom.Type class: %s", type.getClass().getName()));
+    }
+
+    //Processing the String value of a parameter of the smart contract method transferred from Wallet to Node
+    public static String processSmartContractMethodParameterValue(String className, String stringValue) throws CreditsCommonException {
+
+        switch (className) {
+            case "Integer":
+                Validator.validateInteger(stringValue);
+                return stringValue;
+            case "String":
+                return String.format("\"%s\"", stringValue);
+            case "Long":
+                Validator.validateLong(stringValue);
+                return String.format("%sL", stringValue);
+            case "Double":
+                Validator.validateDouble(stringValue);
+                if (stringValue.indexOf(".") == -1) {
+                    return String.format("%s.0", stringValue);
+                }
+            default: return stringValue;
+        }
+    }
+
+
 }
