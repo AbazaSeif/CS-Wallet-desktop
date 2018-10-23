@@ -7,6 +7,7 @@ import com.credits.leveldb.client.data.*;
 import com.credits.leveldb.client.exception.LevelDbClientException;
 import com.credits.leveldb.client.thrift.*;
 import com.credits.thrift.generated.Variant;
+import org.apache.commons.codec.binary.Hex;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -91,16 +92,17 @@ public class LevelDbClientConverter {
     }
 
 
-    public static TransactionData transactionToTransactionData(Transaction transaction) throws LevelDbClientException {
+    public static TransactionData transactionToTransactionData(SealedTransaction sealedTransaction) throws LevelDbClientException {
 
+        Transaction trxn = sealedTransaction.getTrxn();
         TransactionData data = new TransactionData();
-
-        data.setAmount(LevelDbClientConverter.amountToBigDecimal(transaction.getAmount()));
-        data.setCurrency(transaction.getCurrency());
-        data.setId(transaction.getId());
-        data.setSource(transaction.getSource());
-        data.setTarget(transaction.getTarget());
-        data.setBalance(LevelDbClientConverter.amountToBigDecimal(transaction.getBalance()));
+        String innerId = Hex.encodeHexString(sealedTransaction.id.poolHash.array())+"."+(sealedTransaction.id.index+1);
+        data.setAmount(LevelDbClientConverter.amountToBigDecimal(trxn.getAmount()));
+        data.setCurrency(trxn.getCurrency());
+        data.setId(innerId);
+        data.setSource(trxn.getSource());
+        data.setTarget(trxn.getTarget());
+        data.setBalance(LevelDbClientConverter.amountToBigDecimal(trxn.getBalance()));
         return data;
     }
 
