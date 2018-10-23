@@ -1,6 +1,8 @@
 package com.credits.common.utils.sourcecode;
 
+import com.credits.common.exception.CreditsCommonException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -59,4 +61,26 @@ public class SourceCodeUtilsTest {
         Assert.assertEquals(expectedFormattedCode, formattedSourceCode);
         LOGGER.info("formattedSourceCode =\n {}", formattedSourceCode);
     }
+
+    @Test
+    public void testParseClassName01() {
+        List<MethodDeclaration> methodDeclarations = SourceCodeUtils.parseMethods(this.sourceCode);
+        for(MethodDeclaration methodDeclaration: methodDeclarations) {
+            List<SingleVariableDeclaration> singleVariableDeclarations = SourceCodeUtils.getMethodParameters(methodDeclaration);
+            for(SingleVariableDeclaration singleVariableDeclaration: singleVariableDeclarations) {
+                LOGGER.info(SourceCodeUtils.parseClassName(singleVariableDeclaration));
+            }
+        }
+    }
+
+    @Test
+    public void testCreateVariantObject() {
+
+        try {
+            LOGGER.info(SourceCodeUtils.processSmartContractMethodParameterValue("Double", "1.2"));
+        } catch (CreditsCommonException e) {
+            e.printStackTrace();
+        }
+    }
+
 }
